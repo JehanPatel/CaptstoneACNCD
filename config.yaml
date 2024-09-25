@@ -1,0 +1,18 @@
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+credentials:
+  usernames:
+    admin:
+      email: admin@gmail.com
+      failed_login_attempts: 0
+      logged_in: false
+      name: admin
+      password: $2b$12$fapIt.XzegPPkrkdMDv6COt13g3gS2zBWLsyQnE4sqjtWqds7I1sS
+    test:
+      email: test@gmail.com
+      failed_login_attempts: 0
+      logged_in: false
+      name: test
+      password: $2b$12$7vw0LdPLx7FA9SvReIqLUexe4Rw5XKwHyQwV75sZ1etMcaM.Glg0i
