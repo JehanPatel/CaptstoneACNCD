@@ -1,64 +1,83 @@
 import cv2
 import numpy as np
 import streamlit as st
+from login import *
 
-# Create a Streamlit app
-st.title("Live Video Feed with Image Processing")
+st.set_page_config(page_title="Code2", layout="wide")
 
-# Create a checkbox for toggling image segmentation
-segmentation_enabled = st.checkbox("Enable Image Segmentation", value=True)
+hide_default_format = """
+       <style>
+       #MainMenu {visibility: hidden; }
+       footer {visibility: hidden;}
+       </style>
+       """
+st.markdown(hide_default_format, unsafe_allow_html=True)
 
-# Create a video capture object
-cap = cv2.VideoCapture(0)
+authenticator.logout('Logout', 'sidebar')
+st.sidebar.write(f'Welcome to the app!')
 
-# Create a window for displaying the video
-stframe = st.image([])
+if st.session_state.authentication_status:
+    # Create a Streamlit app
+    st.title("Live Video Feed with Image Processing")
 
-while True:
-    # Read a frame from the video capture object
-    ret, frame = cap.read()
+    # Create a checkbox for toggling image segmentation
+    segmentation_enabled = st.checkbox("Enable Image Segmentation", value=True)
 
-    if segmentation_enabled:
-        # Convert the frame to grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Create a video capture object
+    cap = cv2.VideoCapture(0)
 
-        # Apply thresholding to the grayscale image
-        ret, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
+    # Create a window for displaying the video
+    stframe = st.image([])
 
-        # Create a kernel for morphological operations
-        kernel = np.ones((5, 5), np.uint8)
+    while True:
+        # Read a frame from the video capture object
+        ret, frame = cap.read()
 
-        # Apply erosion to the thresholded image
-        eroded = cv2.erode(thresh, kernel, iterations=3)
+        if segmentation_enabled:
+            # Convert the frame to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # Find contours in the eroded image
-        contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            # Apply thresholding to the grayscale image
+            ret, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
 
-        # Create markers for the watershed algorithm
-        markers = np.zeros(gray.shape, dtype=np.int32)
-        for i, contour in enumerate(contours):
-            cv2.drawContours(markers, [contour], -1, i+1, -1)
+            # Create a kernel for morphological operations
+            kernel = np.ones((5, 5), np.uint8)
 
-        # Convert the frame to 3-channel 8-bit unsigned integer image
-        frame_8uc3 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            # Apply erosion to the thresholded image
+            eroded = cv2.erode(thresh, kernel, iterations=3)
 
-        # Apply the watershed algorithm
-        cv2.watershed(frame_8uc3, markers)
+            # Find contours in the eroded image
+            contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Visualize the result using a colormap
-        result = markers.astype(np.uint8)
-        result = cv2.applyColorMap(result, cv2.COLORMAP_RAINBOW)
-    else:
-        # Display the original frame if segmentation is disabled
-        result = frame
+            # Create markers for the watershed algorithm
+            markers = np.zeros(gray.shape, dtype=np.int32)
+            for i, contour in enumerate(contours):
+                cv2.drawContours(markers, [contour], -1, i+1, -1)
 
-    # Display the result
-    stframe.image(result)
+            # Convert the frame to 3-channel 8-bit unsigned integer image
+            frame_8uc3 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Exit on key press
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+            # Apply the watershed algorithm
+            cv2.watershed(frame_8uc3, markers)
 
-# Release the video capture object
-cap.release()
-cv2.destroyAllWindows()
+            # Visualize the result using a colormap
+            result = markers.astype(np.uint8)
+            result = cv2.applyColorMap(result, cv2.COLORMAP_RAINBOW)
+        else:
+            # Display the original frame if segmentation is disabled
+            result = frame
+
+        # Display the result
+        stframe.image(result)
+
+        # Exit on key press
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Release the video capture object
+    cap.release()
+    cv2.destroyAllWindows()
+else:
+    st.error("Please login to view this page.")
+    st.write(f'<meta http-equiv="refresh" content="0; url=/?login">', unsafe_allow_html=True)    
+    st.stop()

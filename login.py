@@ -18,16 +18,6 @@ hide_default_format = """
        """
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
-show_pages(
-        [
-            Page("C:\\Users\\91923\\Desktop\\Coding and Programming\\Capstone\\login.py","Login"),
-            Page("C:\\Users\\91923\\Desktop\\Coding and Programming\\Capstone\\pages\\test.py","Code 1"),
-            Page("C:\\Users\\91923\\Desktop\\Coding and Programming\\Capstone\\pages\\test1.py", "Code 2"),
-            Page("C:\\Users\\91923\\Desktop\\Coding and Programming\\Capstone\\pages\\test2.py", "Code 3"),
-
-        ]
-    )
-
 def load_config():
     with open('config.yaml') as file:
         return yaml.load(file, Loader=SafeLoader)
@@ -92,5 +82,5 @@ elif authentication_status is None:
 if authentication_status:
     # If the user is authenticated
     authenticator.logout('Logout', 'sidebar')
-    st.sidebar.write(f'Welcome to the app, *{name}*!')
+    st.sidebar.write(f'Welcome to the app!')
     st.text('Click on any of the features on your left to get started!')
